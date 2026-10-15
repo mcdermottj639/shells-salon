@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beauty Shell · Mi agenda</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#FFF5E8">
+<link rel="manifest" href="manifest-owner.webmanifest">
+<link rel="icon" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="own">
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><b>BEAUTY SHELL</b><i id="hi">· Mishell</i></a>
+  <button class="btn copper sm" id="refresh" type="button">Actualizar</button>
+</div></header>
+
+<main class="wrap">
+  <div class="gate" id="gate" hidden><h2>Este enlace es solo para Mishell</h2><p>Abre el enlace que te envió Jack. Si lo perdiste, pídeselo de nuevo.</p></div>
+  <div id="app" hidden>
+    <div class="tot" id="tot"></div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="req">Solicitudes<em id="nReq"></em></button>
+      <button role="tab" data-tab="agenda">Agenda<em id="nAg"></em></button>
+      <button role="tab" data-tab="ventas">Ventas</button>
+      <button role="tab" data-tab="rev">Opiniones<em id="nRv"></em></button>
+      <button role="tab" data-tab="svc">Servicios</button>
+    </div>
+    <div id="panel"></div>
+  </div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s); const esc = BS.esc, money = BS.money;
+  const tok = new URLSearchParams(location.search).get('k') || (() => { try { return localStorage.getItem('bs.owner'); } catch (e) { return null; } })();
+  if (!tok) { $('#gate').hidden = false; return; }
+  try { localStorage.setItem('bs.owner', tok); } catch (e) {}
+  if (location.search.includes('k=')) history.replaceState(null, '', location.pathname); // keep the token out of the address bar / screenshots
+  let D = null, tab = 'req';
+  const toast = (m) => { const t = $('#toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); };
+  const fmtDT = (s) => s ? new Date(s).toLocaleString('es-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+  const toLocalInput = (s) => { if (!s) return ''; const d = new Date(s); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+  const wa = (phone, msg) => BS.waLink((phone || '').replace(/\D/g, '').replace(/^(\d{10})$/, '1$1'), msg);
+  const statusEs = { requested: 'Solicitud', confirmed: 'Confirmada', done: 'Hecha', cancelled: 'Cancelada', no_show: 'No vino' };
+  const cls = { requested: 'req', confirmed: 'conf', done: 'done', cancelled: 'off', no_show: 'off' };
+
+  async function load() { try { D = await BS.rpc('salon_owner', { tok }); } catch (e) { D = null; } if (!D || !D.business) { D = null; $('#gate').hidden = false; $('#app').hidden = true; return; } $('#app').hidden = false; $('#hi').textContent = '· ' + D.business.owner_name; paint(); }
+  async function call(fn, p) { try { const r = await BS.rpc(fn, { tok, p }); await load(); return r; } catch (e) { toast('No se guardó: ' + e.message); } }
+
+  function paint() {
+    const T = D.totals;
+    $('#tot').innerHTML = `<div><b>${money(T.week)}</b><span>Esta semana</span></div><div><b>${money(T.month)}</b><span>Este mes</span></div><div><b>${T.requested}</b><span>Solicitudes nuevas</span></div><div><b>${T.upcoming}</b><span>Citas confirmadas</span></div>`;
+    $('#nReq').textContent = T.requested || ''; $('#nAg').textContent = T.upcoming || ''; $('#nRv').textContent = T.pending_reviews || '';
+    document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    const P = $('#panel');
+    if (tab === 'req') {
+      const list = D.appointments.filter(a => a.status === 'requested');
+      P.innerHTML = list.length ? list.map(card).join('') : `<div class="empty">No hay solicitudes nuevas. Cuando alguien pida cita desde tu página, aparece aquí.</div>`;
+    } else if (tab === 'agenda') {
+      const up = D.appointments.filter(a => a.status === 'confirmed').sort((a, b) => (a.scheduled_at || '') > (b.scheduled_at || '') ? 1 : -1);
+      const past = D.appointments.filter(a => ['done', 'cancelled', 'no_show'].includes(a.status)).slice(0, 30);
+      P.innerHTML = `<div class="card"><h3>Añadir cita a mano</h3><p class="sub">Para clientas que te escriben directo por WhatsApp.</p><form class="row" id="addAppt"><input name="client_name" placeholder="Nombre" required><input name="client_phone" placeholder="Teléfono"><input name="service_text" placeholder="Servicio"><input name="scheduled_at" type="datetime-local"><button class="btn sm" type="submit">Guardar</button></form></div>
+        <h3 style="margin-top:18px">Próximas</h3>${up.length ? up.map(card).join('') : '<div class="empty">Nada confirmado todavía.</div>'}
+        ${past.length ? '<h3 style="margin-top:22px">Pasadas</h3>' + past.map(card).join('') : ''}`;
+      $('#addAppt').addEventListener('submit', async e => { e.preventDefault(); const p = Object.fromEntries(new FormData(e.target)); if (p.scheduled_at) p.scheduled_at = new Date(p.scheduled_at).toISOString(); p.status = 'confirmed'; await call('salon_owner_appt', p); toast('Cita guardada'); });
+    } else if (tab === 'ventas') {
+      const byDay = {};
+      P.innerHTML = `<div class="card"><h3>Anotar una venta</h3><p class="sub">Las citas marcadas "Hecha" con precio se anotan solas. Esto es para lo demás.</p><form class="row" id="addSale"><input name="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="$ importe" required><input name="service_text" placeholder="Servicio"><input name="client_name" placeholder="Clienta"><input name="sold_on" type="date"><button class="btn sm" type="submit">Guardar</button></form></div>
+        <div class="card">${D.sales.length ? D.sales.map(s => `<div class="sale"><div>${esc(s.service_text || 'Venta')}${s.client_name ? ' · ' + esc(s.client_name) : ''}<br><small>${esc(s.sold_on)}${s.note ? ' · ' + esc(s.note) : ''}</small></div><div style="text-align:right"><b>${money(s.amount)}</b><br><button class="btn ghost sm" data-del-sale="${s.id}" type="button" style="min-height:30px;padding:2px 10px;font-size:13px">Borrar</button></div></div>`).join('') : '<div class="empty">Aún no hay ventas anotadas.</div>'}</div>`;
+      $('#addSale').addEventListener('submit', async e => { e.preventDefault(); await call('salon_owner_sale', Object.fromEntries(new FormData(e.target))); toast('Venta anotada'); });
+    } else if (tab === 'rev') {
+      const doneAppts = D.appointments.filter(a => a.status === 'done' && a.review_token);
+      P.innerHTML = `<div class="card"><h3>Pedir una opinión</h3><p class="sub">Cada cita hecha tiene su enlace. Cópialo y envíaselo a la clienta por WhatsApp.</p>${doneAppts.length ? doneAppts.slice(0, 20).map(a => `<div class="row"><span>${esc(a.client_name)} · ${esc(a.service_text || '')}</span><a class="btn copper sm" target="_blank" rel="noopener" href="${wa(a.client_phone, `Gracias por venir a Beauty Shell ♡ Si te gustaría compartir cómo fue tu experiencia, aquí puedes dejar tu opinión: ${location.origin + location.pathname.replace(/owner\\.html$/, '')}?review=${a.review_token}`)}">Enviar enlace</a></div>`).join('') : '<p class="sub">Cuando marques una cita como "Hecha", su enlace aparece aquí.</p>'}</div>
+        ${D.reviews.map(r => `<div class="card ${r.approved ? 'done' : 'req'}"><h3>${esc(r.client_name)} <span class="stars">${BS.stars(r.rating)}</span></h3><p class="idea">${esc(r.text)}</p><div class="row"><span class="pill ${r.approved ? 'done' : 'req'}">${r.approved ? 'Publicada' : 'Pendiente'}</span><button class="btn sm ${r.approved ? 'ghost' : ''}" data-rv="${r.id}" data-ap="${!r.approved}" type="button">${r.approved ? 'Ocultar' : 'Publicar'}</button><button class="btn ghost sm" data-rv-del="${r.id}" type="button">Borrar</button></div></div>`).join('') || '<div class="empty">Todavía no hay opiniones.</div>'}`;
+    } else if (tab === 'svc') {
+      P.innerHTML = D.services.map(s => `<div class="card ${s.active ? '' : 'off'}"><form class="svcForm" data-id="${s.id}"><h3>${esc(s.name_es)} <span class="pill">${esc(s.keyword)}</span></h3><div class="row"><input name="price_from" type="number" step="1" min="0" placeholder="desde $ (vacío = precio en consulta)" value="${s.price_from ?? ''}"><input name="duration_min" type="number" step="5" min="0" placeholder="minutos" value="${s.duration_min ?? ''}"></div><div class="row"><input name="desc_es" placeholder="Descripción (ES)" value="${esc(s.desc_es)}"></div><div class="row"><input name="desc_en" placeholder="Description (EN)" value="${esc(s.desc_en)}"></div><div class="row"><button class="btn sm" type="submit">Guardar</button><button class="btn ghost sm" type="button" data-toggle="${s.id}" data-active="${!s.active}">${s.active ? 'Ocultar de la página' : 'Mostrar en la página'}</button></div></form></div>`).join('') +
+        `<div class="card"><h3>Nuevo servicio</h3><form class="row" id="addSvc"><input name="name_es" placeholder="Nombre (ES)" required><input name="name_en" placeholder="Name (EN)"><input name="keyword" placeholder="Palabra clave" maxlength="12"><button class="btn sm" type="submit">Añadir</button></form></div>`;
+      document.querySelectorAll('.svcForm').forEach(f => f.addEventListener('submit', async e => { e.preventDefault(); const p = Object.fromEntries(new FormData(f)); p.id = f.dataset.id; await call('salon_owner_service', p); toast('Servicio guardado'); }));
+      $('#addSvc').addEventListener('submit', async e => { e.preventDefault(); await call('salon_owner_service', Object.fromEntries(new FormData(e.target))); toast('Servicio añadido'); });
+    }
+  }
+  function card(a) {
+    const st = a.status, waMsg = st === 'requested'
+      ? `Hola ${a.client_name}, soy Mishell de Beauty Shell 😊 Recibí tu solicitud para ${a.service_text || 'una cita'}. ¿Me envías una foto de tu cabello actual para orientarte?`
+      : `Hola ${a.client_name}, soy Mishell de Beauty Shell 😊`;
+    return `<div class="card ${cls[st]}"><h3>${esc(a.client_name)} <span class="pill ${cls[st]}">${statusEs[st]}</span></h3>
+      <div class="sub">${esc(a.service_text || '—')}${a.client_city ? ' · ' + esc(a.client_city) : ''}${a.scheduled_at ? ' · ' + fmtDT(a.scheduled_at) : ''}${a.price ? ' · ' + money(a.price) : ''}<br>${esc(a.client_phone)}${a.preferred_times ? ' · le sirve: ' + esc(a.preferred_times) : ''}${a.source && a.source !== 'web' ? ' · ' + esc(a.source) : ''}</div>
+      ${a.idea ? `<div class="idea">${esc(a.idea)}</div>` : ''}
+      <div class="row">
+        <a class="btn copper sm" target="_blank" rel="noopener" href="${wa(a.client_phone, waMsg)}">WhatsApp</a>
+        ${st === 'requested' ? `<input type="datetime-local" data-dt="${a.id}" value="${toLocalInput(a.scheduled_at)}"><button class="btn sm" data-confirm="${a.id}" type="button">Confirmar</button><button class="btn ghost sm" data-status="${a.id}" data-st="cancelled" type="button">Descartar</button>` : ''}
+        ${st === 'confirmed' ? `<input type="number" inputmode="decimal" step="0.01" min="0" placeholder="$ cobrado" data-price="${a.id}" value="${a.price ?? ''}"><button class="btn sm" data-done="${a.id}" type="button">Hecha</button><button class="btn ghost sm" data-status="${a.id}" data-st="no_show" type="button">No vino</button><button class="btn ghost sm" data-status="${a.id}" data-st="cancelled" type="button">Cancelar</button>` : ''}
+        ${['cancelled', 'no_show'].includes(st) ? `<button class="btn ghost sm" data-status="${a.id}" data-st="requested" type="button">Reabrir</button>` : ''}
+      </div></div>`;
+  }
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.tab) { tab = b.dataset.tab; paint(); return; }
+    if (b.dataset.confirm) { const dt = document.querySelector(`[data-dt="${b.dataset.confirm}"]`).value; if (!dt) { toast('Pon fecha y hora primero'); return; } await call('salon_owner_appt', { id: b.dataset.confirm, status: 'confirmed', scheduled_at: new Date(dt).toISOString() }); toast('Confirmada'); }
+    if (b.dataset.done) { const pr = document.querySelector(`[data-price="${b.dataset.done}"]`).value; await call('salon_owner_appt', { id: b.dataset.done, status: 'done', price: pr || '' }); toast(pr ? 'Hecha y venta anotada' : 'Hecha'); }
+    if (b.dataset.status) { await call('salon_owner_appt', { id: b.dataset.status, status: b.dataset.st }); toast('Actualizado'); }
+    if (b.dataset.delSale) { if (confirm('¿Borrar esta venta?')) { await call('salon_owner_sale', { delete_id: b.dataset.delSale }); toast('Borrada'); } }
+    if (b.dataset.rv) { await call('salon_owner_review', { id: b.dataset.rv, approved: b.dataset.ap === 'true' }); toast(b.dataset.ap === 'true' ? 'Publicada en tu página' : 'Oculta'); }
+    if (b.dataset.rvDel) { if (confirm('¿Borrar esta opinión?')) { await call('salon_owner_review', { delete_id: b.dataset.rvDel }); } }
+    if (b.dataset.toggle) { await call('salon_owner_service', { id: b.dataset.toggle, active: b.dataset.active === 'true' }); }
+  });
+  $('#refresh').addEventListener('click', load);
+  load();
+})();
+</script>
+</body>
+</html>

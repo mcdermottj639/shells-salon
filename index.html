@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beauty Shell · Mishell — Color, corte y tratamientos en Stamford, Rye y Port Chester</title>
+<meta name="description" content="Diseño de color, antifrizz, botox capilar y corte con Mishell. Stamford, Rye, Port Chester y alrededores. Pide tu cita por WhatsApp.">
+<meta name="theme-color" content="#FFF5E8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta property="og:title" content="Beauty Shell · Mishell">
+<meta property="og:description" content="Color, corte y tratamientos · Stamford · Rye · Port Chester">
+<meta property="og:image" content="photos/hero.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Poppins:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#BC8155" stroke-width="1.6"><path d="M4 13c0-5 3.6-8 8-8s8 3 8 8c0 3-2 6-8 7-6-1-8-4-8-7Z"/><path d="M12 20V7M7 18l5-11M17 18l-5-11"/></svg><b>BEAUTY SHELL</b><i>by Mishell</i></a>
+  <div class="lang" role="group" aria-label="Idioma / Language"><button type="button" data-lang="es" aria-pressed="true">ES</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <div class="ph"><img src="photos/hero.jpg" alt="" width="1400" height="1867" fetchpriority="high"><div class="ribbon" aria-hidden="true"></div></div>
+    <div class="say"><h1 data-t="hero_h"></h1><p data-t="hero_p"></p><p class="meta" id="area"></p>
+      <div class="ctas"><a class="btn" id="waTop" href="#"><svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg><span data-t="wa"></span></a><a class="btn ghost" href="#pedir" data-t="req"></a></div>
+    </div>
+  </div>
+
+  <section id="servicios"><h2 data-t="svc_h"></h2><div class="rule"></div><p class="lead" data-t="svc_p"></p><ul class="svc" id="svcList"></ul></section>
+
+  <section class="tight"><h2 data-t="how_h"></h2><div class="rule"></div><ol class="steps" id="steps"></ol></section>
+
+  <section id="opiniones"><h2 data-t="rev_h"></h2><div class="rule"></div><div class="rev" id="revList"></div></section>
+
+  <section id="pedir"><h2 data-t="form_h"></h2><div class="rule"></div><p class="lead" data-t="form_p"></p>
+    <form class="req" id="reqForm" novalidate>
+      <label><span data-t="f_name"></span><input name="name" autocomplete="name" required maxlength="80"></label>
+      <label><span data-t="f_phone"></span><input name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30"></label>
+      <label><span data-t="f_city"></span><input name="city" autocomplete="address-level2" maxlength="60" list="cities"><datalist id="cities"><option>Stamford</option><option>Rye</option><option>Port Chester</option><option>Greenwich</option><option>Norwalk</option></datalist></label>
+      <div><span style="font-size:15px;font-weight:600" data-t="f_svc"></span><div class="chips" id="svcChips" style="margin-top:8px"></div></div>
+      <label><span data-t="f_idea"></span><textarea name="idea" maxlength="600" data-ph="f_idea_ph"></textarea></label>
+      <label><span data-t="f_when"></span><input name="preferred_times" maxlength="200" data-ph="f_when_ph"></label>
+      <p class="err" id="err" hidden></p>
+      <button class="btn" type="submit" id="sendBtn"><span data-t="send"></span></button>
+    </form>
+    <div class="done" id="done" hidden><h3 data-t="ok_h"></h3><p data-t="ok_p"></p><a class="btn" id="waAfter" href="#" target="_blank" rel="noopener"><span data-t="ok_wa"></span></a></div>
+  </section>
+
+  <section id="review" hidden><h2 data-t="rv_h"></h2><div class="rule"></div><p class="lead" data-t="rv_p"></p>
+    <form class="req" id="rvForm" novalidate>
+      <label><span data-t="rv_name"></span><input name="name" maxlength="60"></label>
+      <div class="chips" id="rvStars" role="radiogroup"></div>
+      <label><span data-t="rv_text"></span><textarea name="text" required maxlength="800"></textarea></label>
+      <p class="err" id="rvErr" hidden></p>
+      <button class="btn" type="submit"><span data-t="rv_send"></span></button>
+    </form>
+    <div class="done" id="rvDone" hidden><p data-t="rv_ok" style="margin:0"></p></div>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">
+  <b>BEAUTY SHELL · by Mishell</b>
+  <span id="footContact"></span>
+  <span data-t="foot"></span>
+</div></footer>
+<a class="wa" id="waFab" href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c.6.3 1.1.4 1.5.5a3.6 3.6 0 0 0 1.6.1 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg></a>
+
+<script src="app.js"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s); const t = BS.t;
+  let D = { business: { name: 'Beauty Shell', owner: 'Mishell', phone: '203-399-8503', whatsapp: '12033998503', instagram: 'beautyshell12', area: 'Stamford · Rye · Port Chester y alrededores' }, services: [], reviews: [] };
+  const rvToken = new URLSearchParams(location.search).get('review');
+
+  function paint() {
+    document.querySelectorAll('[data-t]').forEach(el => { const v = t(el.dataset.t); if (typeof v === 'string') el.textContent = v; });
+    document.querySelectorAll('[data-ph]').forEach(el => el.placeholder = t(el.dataset.ph));
+    document.querySelectorAll('.lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === BS.lang)));
+    const b = D.business, L = BS.lang;
+    $('#area').textContent = b.area;
+    const wa = BS.waLink(b.whatsapp, t('wa_msg')); $('#waTop').href = wa; $('#waFab').href = wa;
+    $('#footContact').innerHTML = `WhatsApp / ${L === 'es' ? 'teléfono' : 'phone'}: <a href="${wa}">${BS.esc(b.phone)}</a> · ${t('ig')}: <a href="https://instagram.com/${BS.esc(b.instagram)}" target="_blank" rel="noopener">@${BS.esc(b.instagram)}</a> · ${BS.esc(b.area)}`;
+    $('#svcList').innerHTML = D.services.map(s => `<li><h3>${BS.esc(s['name_' + L])}</h3><div class="price">${s.price_from ? `${t('from')} ${BS.money(s.price_from)}` : t('price_ask')}${s.duration_min ? `<small>~${s.duration_min} ${t('min')}</small>` : ''}</div><p>${BS.esc(s['desc_' + L])}</p><a class="btn ghost sm go" href="#pedir" data-svc="${s.id}">${t('ask')}</a></li>`).join('');
+    $('#steps').innerHTML = t('how').map(([h, p]) => `<li><h3>${BS.esc(h)}</h3><p>${BS.esc(p)}</p></li>`).join('');
+    $('#revList').innerHTML = D.reviews.length ? D.reviews.map(r => `<blockquote><p>${BS.esc(r.text)}</p><footer><span>${BS.esc(r.name)}</span><span class="stars" aria-label="${r.rating}/5">${BS.stars(r.rating)}</span></footer></blockquote>`).join('') : `<div class="empty">${t('rev_empty')}</div>`;
+    const cur = (document.querySelector('#svcChips input:checked') || {}).value;
+    $('#svcChips').innerHTML = D.services.map(s => `<label><input type="radio" name="service_id" value="${s.id}" ${String(s.id) === cur ? 'checked' : ''}><span>${BS.esc(s['name_' + L])}</span></label>`).join('');
+    if (rvToken) { $('#review').hidden = false; $('#pedir').hidden = true; const cur2 = (document.querySelector('#rvStars input:checked') || { value: '5' }).value; $('#rvStars').innerHTML = [5, 4, 3, 2, 1].map(n => `<label><input type="radio" name="rating" value="${n}" ${String(n) === cur2 ? 'checked' : ''}><span>${BS.stars(n)}</span></label>`).join(''); }
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => { BS.setLang(b.dataset.lang); paint(); }));
+  document.addEventListener('click', e => { const a = e.target.closest('[data-svc]'); if (a) { const i = document.querySelector(`#svcChips input[value="${a.dataset.svc}"]`); if (i) i.checked = true; } });
+
+  $('#reqForm').addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target, err = $('#err'); err.hidden = true;
+    const p = Object.fromEntries(new FormData(f)); p.lang = BS.lang; p.source = 'web';
+    if ((p.name || '').trim().length < 2 || (p.phone || '').replace(/\D/g, '').length < 7) { err.textContent = t('err_req'); err.hidden = false; return; }
+    const btn = $('#sendBtn'); btn.disabled = true; btn.firstElementChild.textContent = t('sending');
+    try {
+      const r = await BS.rpc('salon_request', { p });
+      f.hidden = true; $('#done').hidden = false; $('#waAfter').href = BS.waLink(D.business.whatsapp, t('wa_msg_req')(r.id, r.keyword)); $('#done').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (x) { err.textContent = t('err_net'); err.hidden = false; btn.disabled = false; btn.firstElementChild.textContent = t('send'); }
+  });
+  $('#rvForm').addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target, err = $('#rvErr'); err.hidden = true;
+    const p = Object.fromEntries(new FormData(f)); p.token = rvToken; p.lang = BS.lang; p.rating = Number(p.rating || 5);
+    if (!(p.text || '').trim()) { err.textContent = t('err_req'); err.hidden = false; return; }
+    try { await BS.rpc('salon_review_submit', { p }); f.hidden = true; $('#rvDone').hidden = false; }
+    catch (x) { err.textContent = /token|reviewed/.test(x.message) ? t('rv_bad') : t('err_net'); err.hidden = false; }
+  });
+
+  paint();
+  BS.rpc('salon_public').then(d => { if (d && d.services) { D = d; paint(); } }).catch(() => {});
+  if (rvToken) setTimeout(() => $('#review').scrollIntoView(), 300);
+})();
+</script>
+</body>
+</html>
